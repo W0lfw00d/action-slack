@@ -11509,7 +11509,6 @@ class Client {
     }
     send(payload) {
         return __awaiter(this, void 0, void 0, function* () {
-            core.info(JSON.stringify(github.context, null, 2));
             yield this.webhook.send(payload);
             core.info('send message');
         });
@@ -11581,6 +11580,7 @@ class Client {
     get commit() {
         if (!this.includesField('commit'))
             return undefined;
+        core.info(`github.context:\n${JSON.stringify(github.context, null, 2)}`);
         const { sha } = github.context;
         const { owner, repo } = github.context.repo;
         return {

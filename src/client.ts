@@ -88,7 +88,6 @@ export class Client {
   }
 
   async send(payload: string | IncomingWebhookSendArguments) {
-    core.info(JSON.stringify(github.context, null, 2));
     await this.webhook.send(payload);
     core.info('send message');
   }
@@ -172,6 +171,8 @@ export class Client {
 
   private get commit(): Field | undefined {
     if (!this.includesField('commit')) return undefined;
+
+    core.info(`github.context:\n${JSON.stringify(github.context, null, 2)}`);
 
     const { sha } = github.context;
     const { owner, repo } = github.context.repo;
