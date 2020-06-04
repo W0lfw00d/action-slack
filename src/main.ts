@@ -16,19 +16,21 @@ async function run(): Promise<void> {
     const custom_payload = core.getInput('custom_payload');
     const payload = core.getInput('payload');
     const fields = core.getInput('fields');
+    const actorName = process.env.GITHUB_ACTOR;
 
-    core.debug(`status: ${status}`);
-    core.debug(`mention: ${mention}`);
-    core.debug(`author_name: ${author_name}`);
-    core.debug(`if_mention: ${if_mention}`);
-    core.debug(`text: ${text}`);
-    core.debug(`username: ${username}`);
-    core.debug(`icon_emoji: ${icon_emoji}`);
-    core.debug(`icon_url: ${icon_url}`);
-    core.debug(`channel: ${channel}`);
-    core.debug(`custom_payload: ${custom_payload}`);
-    core.debug(`payload: ${payload}`);
-    core.debug(`fields: ${fields}`);
+    core.info(`status: ${status}`);
+    core.info(`mention: ${mention}`);
+    core.info(`author_name: ${author_name}`);
+    core.info(`if_mention: ${if_mention}`);
+    core.info(`text: ${text}`);
+    core.info(`username: ${username}`);
+    core.info(`icon_emoji: ${icon_emoji}`);
+    core.info(`icon_url: ${icon_url}`);
+    core.info(`channel: ${channel}`);
+    core.info(`custom_payload: ${custom_payload}`);
+    core.info(`payload: ${payload}`);
+    core.info(`fields: ${fields}`);
+    core.info(`actorName: ${actorName}`);
 
     const client = new Client(
       {
