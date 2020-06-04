@@ -11572,10 +11572,9 @@ class Client {
                         short: true,
                     }
                     : undefined,
-                this.action,
+                this.workflow,
                 this.eventName,
                 this.ref,
-                this.workflow,
             ], undefined);
         });
     }
@@ -11585,7 +11584,7 @@ class Client {
         const { sha } = github.context;
         const { owner, repo } = github.context.repo;
         return {
-            title: 'commit',
+            title: 'Commit',
             value: `<https://github.com/${owner}/${repo}/commit/${sha}|${sha.slice(0, 8)}>`,
             short: true,
         };
@@ -11595,20 +11594,8 @@ class Client {
             return undefined;
         const { owner, repo } = github.context.repo;
         return {
-            title: 'repo',
+            title: 'Repo',
             value: `<https://github.com/${owner}/${repo}|${owner}/${repo}>`,
-            short: true,
-        };
-    }
-    get action() {
-        var _a, _b;
-        if (!this.includesField('action'))
-            return undefined;
-        const sha = (_b = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head.sha) !== null && _b !== void 0 ? _b : github.context.sha;
-        const { owner, repo } = github.context.repo;
-        return {
-            title: 'action',
-            value: `<https://github.com/${owner}/${repo}/commit/${sha}/checks|action>`,
             short: true,
         };
     }
@@ -11616,7 +11603,7 @@ class Client {
         if (!this.includesField('eventName'))
             return undefined;
         return {
-            title: 'eventName',
+            title: 'Event',
             value: github.context.eventName,
             short: true,
         };
@@ -11624,12 +11611,19 @@ class Client {
     get ref() {
         if (!this.includesField('ref'))
             return undefined;
-        return { title: 'ref', value: github.context.ref, short: true };
+        return { title: 'Ref', value: github.context.ref, short: true };
     }
     get workflow() {
-        if (!this.includesField('workflow'))
+        var _a, _b;
+        if (!this.includesField('action'))
             return undefined;
-        return { title: 'workflow', value: github.context.workflow, short: true };
+        const sha = (_b = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head.sha) !== null && _b !== void 0 ? _b : github.context.sha;
+        const { owner, repo } = github.context.repo;
+        return {
+            title: 'Actions URL',
+            value: `<https://github.com/${owner}/${repo}/commit/${sha}/checks|${github.context.workflow}>`,
+            short: true,
+        };
     }
     mentionText(mention, status) {
         if (!this.with.if_mention.includes(status) &&

@@ -162,10 +162,9 @@ export class Client {
               short: true,
             }
           : undefined,
-        this.action,
+        this.workflow,
         this.eventName,
         this.ref,
-        this.workflow,
       ],
       undefined,
     );
@@ -178,7 +177,7 @@ export class Client {
     const { owner, repo } = github.context.repo;
 
     return {
-      title: 'commit',
+      title: 'Commit',
       value: `<https://github.com/${owner}/${repo}/commit/${sha}|${sha.slice(
         0,
         8,
@@ -193,22 +192,8 @@ export class Client {
     const { owner, repo } = github.context.repo;
 
     return {
-      title: 'repo',
+      title: 'Repo',
       value: `<https://github.com/${owner}/${repo}|${owner}/${repo}>`,
-      short: true,
-    };
-  }
-
-  private get action(): Field | undefined {
-    if (!this.includesField('action')) return undefined;
-
-    const sha =
-      github.context.payload.pull_request?.head.sha ?? github.context.sha;
-    const { owner, repo } = github.context.repo;
-
-    return {
-      title: 'action',
-      value: `<https://github.com/${owner}/${repo}/commit/${sha}/checks|action>`,
       short: true,
     };
   }
@@ -217,7 +202,7 @@ export class Client {
     if (!this.includesField('eventName')) return undefined;
 
     return {
-      title: 'eventName',
+      title: 'Event',
       value: github.context.eventName,
       short: true,
     };
@@ -226,13 +211,21 @@ export class Client {
   private get ref(): Field | undefined {
     if (!this.includesField('ref')) return undefined;
 
-    return { title: 'ref', value: github.context.ref, short: true };
+    return { title: 'Ref', value: github.context.ref, short: true };
   }
 
   private get workflow(): Field | undefined {
-    if (!this.includesField('workflow')) return undefined;
+    if (!this.includesField('action')) return undefined;
 
-    return { title: 'workflow', value: github.context.workflow, short: true };
+    const sha =
+      github.context.payload.pull_request?.head.sha ?? github.context.sha;
+    const { owner, repo } = github.context.repo;
+
+    return {
+      title: 'Actions URL',
+      value: `<https://github.com/${owner}/${repo}/commit/${sha}/checks|${github.context.workflow}>`,
+      short: true,
+    };
   }
 
   private mentionText(
