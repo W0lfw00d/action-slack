@@ -11473,6 +11473,9 @@ class Client {
         if (token === undefined) {
             throw new Error('Specify secrets.GITHUB_TOKEN');
         }
+        if (webhookUrl === undefined) {
+            throw new Error('Specify secrets.SLACK_WEBHOOK_URL');
+        }
         if (this.with.fields === '') {
             this.with.fields = 'repo,commit';
         }
@@ -11483,9 +11486,6 @@ class Client {
         this.context = JSON.parse(contextJson);
         if (this.with.author_name === '') {
             this.with.author_name = this.context.actor;
-        }
-        if (webhookUrl === undefined) {
-            throw new Error('Specify secrets.SLACK_WEBHOOK_URL');
         }
         this.webhook = new webhook_1.IncomingWebhook(webhookUrl);
     }

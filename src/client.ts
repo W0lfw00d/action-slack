@@ -44,6 +44,9 @@ export class Client {
     if (token === undefined) {
       throw new Error('Specify secrets.GITHUB_TOKEN');
     }
+    if (webhookUrl === undefined) {
+      throw new Error('Specify secrets.SLACK_WEBHOOK_URL');
+    }
     if (this.with.fields === '') {
       this.with.fields = 'repo,commit';
     }
@@ -59,9 +62,6 @@ export class Client {
       this.with.author_name = this.context.actor;
     }
 
-    if (webhookUrl === undefined) {
-      throw new Error('Specify secrets.SLACK_WEBHOOK_URL');
-    }
     this.webhook = new IncomingWebhook(webhookUrl);
   }
 
@@ -116,10 +116,8 @@ export class Client {
     array: T,
     diff: U,
   ) {
-    return array.filter(item => item !== diff) as Exclude<
-      T extends { [K in keyof T]: infer U } ? U : never,
-      U
-    >[];
+    return array.filter(item => item !== diff) as Exclude<T extends { [K in keyof T]: infer U } ? U : never,
+      U>[];
   }
 
   private async payloadTemplate() {
