@@ -11509,9 +11509,9 @@ class Client {
     }
     send(payload) {
         return __awaiter(this, void 0, void 0, function* () {
-            core.debug(JSON.stringify(github.context, null, 2));
+            core.info(JSON.stringify(github.context, null, 2));
             yield this.webhook.send(payload);
-            core.debug('send message');
+            core.info('send message');
         });
     }
     includesField(field) {
