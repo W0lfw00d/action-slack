@@ -4294,7 +4294,7 @@ function run() {
         try {
             const status = core.getInput('status', { required: true }).toLowerCase();
             const mention = core.getInput('mention');
-            const author_name = core.getInput('author_name');
+            const author_name = process.env.GITHUB_ACTOR || core.getInput('author_name');
             const if_mention = core.getInput('if_mention').toLowerCase();
             const text = core.getInput('text');
             const username = core.getInput('username');
@@ -4304,7 +4304,6 @@ function run() {
             const custom_payload = core.getInput('custom_payload');
             const payload = core.getInput('payload');
             const fields = core.getInput('fields');
-            const actorName = process.env.GITHUB_ACTOR;
             core.info(`status: ${status}`);
             core.info(`mention: ${mention}`);
             core.info(`author_name: ${author_name}`);
@@ -4317,7 +4316,6 @@ function run() {
             core.info(`custom_payload: ${custom_payload}`);
             core.info(`payload: ${payload}`);
             core.info(`fields: ${fields}`);
-            core.info(`actorName: ${actorName}`);
             const client = new client_1.Client({
                 status,
                 mention,
@@ -11538,6 +11536,8 @@ class Client {
                     {
                         color: '',
                         author_name: this.with.author_name,
+                        author_link: `http://github.com/${this.with.author_name}`,
+                        author_icon: `http://github.com/${this.with.author_name}.png?size=32`,
                         fields: yield this.fields(),
                     },
                 ],

@@ -5,7 +5,7 @@
   "description": "You can notify slack of GitHub Actions.",
   "main": "lib/main.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npm i && tsc",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",

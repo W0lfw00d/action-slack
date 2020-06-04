@@ -123,6 +123,8 @@ export class Client {
         {
           color: '',
           author_name: this.with.author_name,
+          author_link: `http://github.com/${this.with.author_name}`,
+          author_icon: `http://github.com/${this.with.author_name}.png?size=32`,
           fields: await this.fields(),
         },
       ],

@@ -32,7 +32,7 @@ inputs:
     required: false
   author_name:
     description: User name for slack notification.
-    default: 8398a7@action-slack
+    default: anonymous
     required: false
   text:
     description: You can overwrite text.
