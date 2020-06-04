@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { IncomingWebhook, IncomingWebhookSendArguments } from '@slack/webhook';
+import { Context } from './actionContext';
 
 export const Success = 'success';
 type SuccessType = 'success';
@@ -34,22 +35,28 @@ const groupMention = ['here', 'channel'];
 
 export class Client {
   private webhook: IncomingWebhook;
-  private github?: github.GitHub;
-  private context?: any;
+  private github: github.GitHub;
+  private context: Context;
   private with: With;
 
   constructor(props: With, token?: string, webhookUrl?: string) {
     this.with = props;
+    if (token === undefined) {
+      throw new Error('Specify secrets.GITHUB_TOKEN');
+    }
     if (this.with.fields === '') {
       this.with.fields = 'repo,commit';
     }
 
-    if (token !== undefined) {
-      this.github = new github.GitHub(token);
+    const githubToken = token ? token : '';
+    this.github = new github.GitHub(githubToken);
 
-      const contextJson = JSON.stringify(github.context);
-      core.info(`Context:\n${contextJson}`);
-      this.context = JSON.parse(contextJson);
+    const contextJson = JSON.stringify(github.context);
+    core.info(`Context:\n${contextJson}`);
+    this.context = JSON.parse(contextJson);
+
+    if (this.with.author_name === '') {
+      this.with.author_name = this.context.actor;
     }
 
     if (webhookUrl === undefined) {
@@ -109,8 +116,10 @@ export class Client {
     array: T,
     diff: U,
   ) {
-    return array.filter(item => item !== diff) as Exclude<T extends { [K in keyof T]: infer U } ? U : never,
-      U>[];
+    return array.filter(item => item !== diff) as Exclude<
+      T extends { [K in keyof T]: infer U } ? U : never,
+      U
+    >[];
   }
 
   private async payloadTemplate() {
@@ -137,13 +146,7 @@ export class Client {
 
   private async fields(): Promise<Field[]> {
     return this.filterField(
-      [
-        this.repo,
-        this.ref,
-        this.workflow,
-        this.eventName,
-        this.commit,
-      ],
+      [this.repo, this.ref, this.workflow, this.eventName, this.commit],
       undefined,
     );
   }
@@ -152,8 +155,8 @@ export class Client {
     if (!this.includesField('commit')) return undefined;
 
     const commit = this.context.payload.commits[0];
-    const url = commit.url;
-    const comment = commit.message;
+    const url = commit?.url;
+    const comment = commit?.message;
 
     return {
       title: 'Commit',

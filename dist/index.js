@@ -4294,7 +4294,7 @@ function run() {
         try {
             const status = core.getInput('status', { required: true }).toLowerCase();
             const mention = core.getInput('mention');
-            const author_name = process.env.GITHUB_ACTOR || core.getInput('author_name');
+            const author_name = core.getInput('author_name');
             const if_mention = core.getInput('if_mention').toLowerCase();
             const text = core.getInput('text');
             const username = core.getInput('username');
@@ -11470,14 +11470,19 @@ const groupMention = ['here', 'channel'];
 class Client {
     constructor(props, token, webhookUrl) {
         this.with = props;
+        if (token === undefined) {
+            throw new Error('Specify secrets.GITHUB_TOKEN');
+        }
         if (this.with.fields === '') {
             this.with.fields = 'repo,commit';
         }
-        if (token !== undefined) {
-            this.github = new github.GitHub(token);
-            const contextJson = JSON.stringify(github.context);
-            core.info(`Context:\n${contextJson}`);
-            this.context = JSON.parse(contextJson);
+        const githubToken = token ? token : '';
+        this.github = new github.GitHub(githubToken);
+        const contextJson = JSON.stringify(github.context);
+        core.info(`Context:\n${contextJson}`);
+        this.context = JSON.parse(contextJson);
+        if (this.with.author_name === '') {
+            this.with.author_name = this.context.actor;
         }
         if (webhookUrl === undefined) {
             throw new Error('Specify secrets.SLACK_WEBHOOK_URL');
@@ -11549,21 +11554,15 @@ class Client {
     }
     fields() {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.filterField([
-                this.repo,
-                this.ref,
-                this.workflow,
-                this.eventName,
-                this.commit,
-            ], undefined);
+            return this.filterField([this.repo, this.ref, this.workflow, this.eventName, this.commit], undefined);
         });
     }
     get commit() {
         if (!this.includesField('commit'))
             return undefined;
         const commit = this.context.payload.commits[0];
-        const url = commit.url;
-        const comment = commit.message;
+        const url = commit === null || commit === void 0 ? void 0 : commit.url;
+        const comment = commit === null || commit === void 0 ? void 0 : commit.message;
         return {
             title: 'Commit',
             value: `<${url}|${comment}>`,

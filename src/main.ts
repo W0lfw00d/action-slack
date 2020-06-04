@@ -1,12 +1,12 @@
 import * as core from '@actions/core';
-import { Client, Success, Failure, Cancelled, Custom } from './client';
+import { Cancelled, Client, Custom, Failure, Success } from './client';
 import { IncomingWebhookSendArguments } from '@slack/webhook';
 
 async function run(): Promise<void> {
   try {
     const status = core.getInput('status', { required: true }).toLowerCase();
     const mention = core.getInput('mention');
-    const author_name = process.env.GITHUB_ACTOR || core.getInput('author_name');
+    const author_name = core.getInput('author_name');
     const if_mention = core.getInput('if_mention').toLowerCase();
     const text = core.getInput('text');
     const username = core.getInput('username');
