@@ -35,14 +35,21 @@ const groupMention = ['here', 'channel'];
 export class Client {
   private webhook: IncomingWebhook;
   private github?: github.GitHub;
+  private context?: any;
   private with: With;
 
   constructor(props: With, token?: string, webhookUrl?: string) {
     this.with = props;
-    if (this.with.fields === '') this.with.fields = 'repo,commit';
+    if (this.with.fields === '') {
+      this.with.fields = 'repo,commit';
+    }
 
     if (token !== undefined) {
       this.github = new github.GitHub(token);
+
+      const contextJson = JSON.stringify(github.context);
+      core.info(`Context:\n${contextJson}`);
+      this.context = JSON.parse(contextJson);
     }
 
     if (webhookUrl === undefined) {
@@ -102,10 +109,8 @@ export class Client {
     array: T,
     diff: U,
   ) {
-    return array.filter(item => item !== diff) as Exclude<
-      T extends { [K in keyof T]: infer U } ? U : never,
-      U
-    >[];
+    return array.filter(item => item !== diff) as Exclude<T extends { [K in keyof T]: infer U } ? U : never,
+      U>[];
   }
 
   private async payloadTemplate() {
@@ -131,39 +136,13 @@ export class Client {
   }
 
   private async fields(): Promise<Field[]> {
-    const { sha } = github.context;
-    const { owner, repo } = github.context.repo;
-
-    const commit = await this.github?.repos.getCommit({
-      owner,
-      repo,
-      ref: sha,
-    });
-    const author = commit?.data.commit.author;
-
     return this.filterField(
       [
         this.repo,
-        commit && this.includesField('message')
-          ? {
-              title: 'message',
-              value: `<${commit.data.html_url}|${
-                commit.data.commit.message.split('\n')[0]
-              }>`,
-              short: true,
-            }
-          : undefined,
-        this.commit,
-        author && this.includesField('author')
-          ? {
-              title: 'author',
-              value: `${author.name}<${author.email}>`,
-              short: true,
-            }
-          : undefined,
+        this.ref,
         this.workflow,
         this.eventName,
-        this.ref,
+        this.commit,
       ],
       undefined,
     );
@@ -172,17 +151,13 @@ export class Client {
   private get commit(): Field | undefined {
     if (!this.includesField('commit')) return undefined;
 
-    core.info(`github.context:\n${JSON.stringify(github.context, null, 2)}`);
-
-    const { sha } = github.context;
-    const { owner, repo } = github.context.repo;
+    const commit = this.context.payload.commits[0];
+    const url = commit.url;
+    const comment = commit.message;
 
     return {
       title: 'Commit',
-      value: `<https://github.com/${owner}/${repo}/commit/${sha}|${sha.slice(
-        0,
-        8,
-      )}>`,
+      value: `<${url}|${comment}>`,
       short: true,
     };
   }
@@ -190,11 +165,9 @@ export class Client {
   private get repo(): Field | undefined {
     if (!this.includesField('repo')) return undefined;
 
-    const { owner, repo } = github.context.repo;
-
     return {
       title: 'Repo',
-      value: `<https://github.com/${owner}/${repo}|${owner}/${repo}>`,
+      value: `<${this.context.payload.repository.url}>`,
       short: true,
     };
   }
@@ -204,7 +177,7 @@ export class Client {
 
     return {
       title: 'Event',
-      value: github.context.eventName,
+      value: this.context.eventName,
       short: true,
     };
   }
@@ -212,19 +185,18 @@ export class Client {
   private get ref(): Field | undefined {
     if (!this.includesField('ref')) return undefined;
 
-    return { title: 'Ref', value: github.context.ref, short: true };
+    return { title: 'Ref', value: this.context.ref, short: true };
   }
 
   private get workflow(): Field | undefined {
     if (!this.includesField('action')) return undefined;
 
-    const sha =
-      github.context.payload.pull_request?.head.sha ?? github.context.sha;
-    const { owner, repo } = github.context.repo;
+    const commit = this.context.payload.commits[0];
+    const url = commit.url;
 
     return {
-      title: 'Actions URL',
-      value: `<https://github.com/${owner}/${repo}/commit/${sha}/checks|${github.context.workflow}>`,
+      title: 'Workflow',
+      value: `<${url}/checks|${this.context.workflow}>`,
       short: true,
     };
   }
