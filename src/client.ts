@@ -146,18 +146,38 @@ export class Client {
 
   private async fields(): Promise<Field[]> {
     return this.filterField(
-      [this.repo, this.ref, this.workflow, this.eventName, this.commit],
+      [
+        this.repo,
+        this.ref,
+        this.workflow,
+        this.eventName,
+        this.commit,
+        this.diff,
+      ],
       undefined,
     );
+  }
+
+  private get diff(): Field | undefined {
+    if (!this.includesField('commit')) return undefined;
+
+    const url = this.context.payload.compare;
+    const commits = url.substring(url.lastIndexOf('/') + 1);
+
+    return {
+      title: 'Diff',
+      value: `<${url}|${commits}>`,
+      short: true,
+    };
   }
 
   private get commit(): Field | undefined {
     if (!this.includesField('commit')) return undefined;
 
     const sha = this.context.sha.slice(0, 8);
-    const commit = this.context.payload.commits[0];
-    const url = commit?.url;
-    const comment = commit?.message;
+    const commit = this.context.payload.head_commit;
+    const url = commit.url;
+    const comment = commit.message;
 
     return {
       title: 'Commit',
@@ -169,9 +189,12 @@ export class Client {
   private get repo(): Field | undefined {
     if (!this.includesField('repo')) return undefined;
 
+    const url = this.context.payload.repository.url;
+    const name = this.context.payload.repository.full_name;
+
     return {
       title: 'Repo',
-      value: `<${this.context.payload.repository.url}>`,
+      value: `<${url}|${name}>`,
       short: true,
     };
   }
@@ -179,9 +202,11 @@ export class Client {
   private get eventName(): Field | undefined {
     if (!this.includesField('eventName')) return undefined;
 
+    const eventType = this.context.eventName;
+
     return {
       title: 'Event',
-      value: this.context.eventName,
+      value: eventType,
       short: true,
     };
   }
@@ -189,18 +214,21 @@ export class Client {
   private get ref(): Field | undefined {
     if (!this.includesField('ref')) return undefined;
 
-    return { title: 'Ref', value: this.context.ref, short: true };
+    const repoRef = this.context.ref;
+
+    return { title: 'Ref', value: repoRef, short: true };
   }
 
   private get workflow(): Field | undefined {
     if (!this.includesField('action')) return undefined;
 
-    const commit = this.context.payload.commits[0];
+    const commit = this.context.payload.head_commit;
     const url = commit.url;
+    const workflow = this.context.workflow;
 
     return {
       title: 'Workflow',
-      value: `<${url}/checks|${this.context.workflow}>`,
+      value: `<${url}/checks|${workflow}>`,
       short: true,
     };
   }

@@ -11554,16 +11554,34 @@ class Client {
     }
     fields() {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.filterField([this.repo, this.ref, this.workflow, this.eventName, this.commit], undefined);
+            return this.filterField([
+                this.repo,
+                this.ref,
+                this.workflow,
+                this.eventName,
+                this.commit,
+                this.diff,
+            ], undefined);
         });
+    }
+    get diff() {
+        if (!this.includesField('commit'))
+            return undefined;
+        const url = this.context.payload.compare;
+        const commits = url.substring(url.lastIndexOf('/') + 1);
+        return {
+            title: 'Diff',
+            value: `<${url}|${commits}>`,
+            short: true,
+        };
     }
     get commit() {
         if (!this.includesField('commit'))
             return undefined;
         const sha = this.context.sha.slice(0, 8);
-        const commit = this.context.payload.commits[0];
-        const url = commit === null || commit === void 0 ? void 0 : commit.url;
-        const comment = commit === null || commit === void 0 ? void 0 : commit.message;
+        const commit = this.context.payload.head_commit;
+        const url = commit.url;
+        const comment = commit.message;
         return {
             title: 'Commit',
             value: `<${url}|${sha}... ${comment}>`,
@@ -11573,34 +11591,39 @@ class Client {
     get repo() {
         if (!this.includesField('repo'))
             return undefined;
+        const url = this.context.payload.repository.url;
+        const name = this.context.payload.repository.full_name;
         return {
             title: 'Repo',
-            value: `<${this.context.payload.repository.url}>`,
+            value: `<${url}|${name}>`,
             short: true,
         };
     }
     get eventName() {
         if (!this.includesField('eventName'))
             return undefined;
+        const eventType = this.context.eventName;
         return {
             title: 'Event',
-            value: this.context.eventName,
+            value: eventType,
             short: true,
         };
     }
     get ref() {
         if (!this.includesField('ref'))
             return undefined;
-        return { title: 'Ref', value: this.context.ref, short: true };
+        const repoRef = this.context.ref;
+        return { title: 'Ref', value: repoRef, short: true };
     }
     get workflow() {
         if (!this.includesField('action'))
             return undefined;
-        const commit = this.context.payload.commits[0];
+        const commit = this.context.payload.head_commit;
         const url = commit.url;
+        const workflow = this.context.workflow;
         return {
             title: 'Workflow',
-            value: `<${url}/checks|${this.context.workflow}>`,
+            value: `<${url}/checks|${workflow}>`,
             short: true,
         };
     }

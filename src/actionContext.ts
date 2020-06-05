@@ -3,6 +3,7 @@
 export interface PayloadRepository {
   [key: string]: any;
 
+  full_name: string;
   url: string;
 }
 
@@ -16,8 +17,9 @@ export interface Commit {
 export interface WebhookPayload {
   [key: string]: any;
 
+  compare: string;
   repository: PayloadRepository;
-  commits: Array<Commit>;
+  head_commit: Commit;
 }
 
 export declare interface Context {
