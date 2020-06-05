@@ -116,8 +116,10 @@ export class Client {
     array: T,
     diff: U,
   ) {
-    return array.filter(item => item !== diff) as Exclude<T extends { [K in keyof T]: infer U } ? U : never,
-      U>[];
+    return array.filter(item => item !== diff) as Exclude<
+      T extends { [K in keyof T]: infer U } ? U : never,
+      U
+    >[];
   }
 
   private async payloadTemplate() {
@@ -152,13 +154,14 @@ export class Client {
   private get commit(): Field | undefined {
     if (!this.includesField('commit')) return undefined;
 
+    const sha = this.context.sha.slice(0, 8);
     const commit = this.context.payload.commits[0];
     const url = commit?.url;
     const comment = commit?.message;
 
     return {
       title: 'Commit',
-      value: `<${url}|${comment}>`,
+      value: `<${url}|${comment} ${sha}>`,
       short: true,
     };
   }

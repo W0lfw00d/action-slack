@@ -23,6 +23,7 @@ export interface WebhookPayload {
 export declare interface Context {
   payload: WebhookPayload;
   eventName: string;
+  sha: string;
   ref: string;
   workflow: string;
   actor: string;

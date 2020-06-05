@@ -11560,12 +11560,13 @@ class Client {
     get commit() {
         if (!this.includesField('commit'))
             return undefined;
+        const sha = this.context.sha.slice(0, 8);
         const commit = this.context.payload.commits[0];
         const url = commit === null || commit === void 0 ? void 0 : commit.url;
         const comment = commit === null || commit === void 0 ? void 0 : commit.message;
         return {
             title: 'Commit',
-            value: `<${url}|${comment}>`,
+            value: `<${url}|${comment} ${sha}>`,
             short: true,
         };
     }
