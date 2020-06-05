@@ -11566,7 +11566,7 @@ class Client {
         const comment = commit === null || commit === void 0 ? void 0 : commit.message;
         return {
             title: 'Commit',
-            value: `<${url}|${comment} ${sha}>`,
+            value: `<${url}|${sha}... ${comment}>`,
             short: true,
         };
     }

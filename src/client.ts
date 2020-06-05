@@ -161,7 +161,7 @@ export class Client {
 
     return {
       title: 'Commit',
-      value: `<${url}|${comment} ${sha}>`,
+      value: `<${url}|${sha}... ${comment}>`,
       short: true,
     };
   }
