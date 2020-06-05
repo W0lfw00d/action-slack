@@ -11581,7 +11581,10 @@ class Client {
         const sha = this.context.sha.slice(0, 8);
         const commit = this.context.payload.head_commit;
         const url = commit.url;
-        const comment = commit.message;
+        const comment = commit.message
+            .replace(/[\r\n]+/g, ' ')
+            .replace(/\s\s+/g, ' ')
+            .trim();
         return {
             title: 'Commit',
             value: `<${url}|${sha}... ${comment}>`,
