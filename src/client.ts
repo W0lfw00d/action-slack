@@ -176,11 +176,11 @@ export class Client {
 
     const sha = this.context.sha.slice(0, 8);
     const commit = this.context.payload.head_commit;
-    const url = commit.url;
-    const comment = commit.message
-      .replace(/[\r\n]+/g, ' ')
-      .replace(/\s\s+/g, ' ')
-      .trim();
+    const url = commit?.url;
+    const comment = commit?.message
+      ?.replace(/[\r\n]+/g, ' ')
+      ?.replace(/\s\s+/g, ' ')
+      ?.trim();
 
     return {
       title: 'Commit',
@@ -226,7 +226,7 @@ export class Client {
     if (!this.includesField('action')) return undefined;
 
     const commit = this.context.payload.head_commit;
-    const url = commit.url;
+    const url = commit?.url;
     const workflow = this.context.workflow;
 
     return {
